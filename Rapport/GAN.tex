@@ -1,0 +1,80 @@
+\chapter{Les GAN (Réseaux Adverses Génératifs) (pas fini et  pas relu hein}
+
+\section{Principe général des GAN}
+Le principe général des GAN repose sur l'utilisation de deux réseaux, ayant des objectifs contraires, on dit qu'ils sont \textbf{adversaires}. Le premier réseau transforme du bruit en image, c'est le \textbf{générateur} (G). Le deuxième réseau prend en entrées des images et les classe en deux catégories, en leur associant leur probabilité d'être issues de la base de donnée : c'est donc un classifieur binaire, il est appelé \textbf{discriminateur} (D). Le plus souvent, le discriminateur sera alimenté par des images de deux sortes : celles provenant de la base de donnée (images réelles), et celles générée par le générateur, on rôle sera donc de dire si une image est réelle ou générée. Il s'agit ensuite d'entraîner G afin qu'il maximise la probabilité que D fasse une erreur, et D la justesse de sa classification
+
+L'architecture des GAN a été introduite pour la première fois par Ian Goodfellow [ref] en 2014. Cet article innovant montrait déjà un gain de performance pour la génération d'images suivant une base de donnée. Mais l'atout majeur des GAN sont leur adaptabilité à tous types de données.
+
+
+\section{Le DCGAN (Deep Convolutionnal Adversarial Network)}
+Le DCGAN est la première architecture de GAN qui a été proposée [ref GoodFellow]. Le générateur et le discriminateur sont tous les deux des \textbf{réseaux à convolutions} [ref].
+
+Cette architecture est caractérisée par les fonctions de coût de G et D. La fonction de coût de G à minimiser est la suivante : \begin{equation}
+   \mathbb{E}_{x \in dataset}(\log (D(x))) + \mathbb{E}_{z}(\log (1 - D(G(z)))
+\end{equation}
+
+Pareillement, on donne comme fonction de coût pour D l'opposé de celle de G. L'architecture du DCGAN correspond alors à un jeu minmax. La théorie des équilibres de Nash donnent un unique état stable. Il correspond à un coût égal à $-\log 4$ pour G et $ \log 4$ pour D. Cette situation représente un discriminateur forcé d'associer une probabilité de 0,5 pour chaque image donnée en entrée, le générateur étant devenu trop fort.
+
+Une variation intéressante sur le DCGAN est de poser $  \mathbb{E}_{x \in dataset}(\log (D(x))) + \mathbb{E}_{z}(\log (D(G(z)))$ comme fonction de coût en début d'apprentissage. L'intérêt de cette modification résulte d'un problème : le discrimateur a tendance à facilement distinguer les images générées par G de celles de la base de donnée en début d'apprentissage. Dans ce cas, le terme $\log (1 - D(G(z))$ sature vers 0. Le remplacer par $\log (1 - D(G(z))$ résoud ce problème.
+
+
+\section{Le W-GAN (GAN de Wasserstein)}
+
+blablabla
+
+\section{Étude de la convergence des GAN}
+
+De par leur caractère adversaires, les GAN requièrent un équilibre fin entre la générateur et le discriminateur, ils sont donc par nature \textbf{instables}. L'étude de la convergence des GAN est un domaine encore très actif de la recherche. Nous allons discuter de deux phénomènes très communs qui peuvent gêner ou ruiner l'apprentissage des GAN : l'\textbf{effondrement des modes} (\textit{mode collapse}), et la \textbf{non-convergence} due à la perte d'équilibre du système.
+
+\subsection{L'effondrement des modes}
+
+L'effondrement des modes survient quand le réseau générateur ne génère pas des images conforment à l'ensemble de la distribution des images réelles, mais seulement à une petite partie. L'effondrement des modes est très visible lorsque la distribution des images réelles forme des zones bien séparées, c'est à dire quand celle-ci comporte des classes bien définies. La manifestation de ce phénomène se traduit par des images générées qui se ressemblent toutes. La figure [ref figure] montre un exemple du phénomène sur la base de données MNIST et CelebA.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=80pt]{"images/collapseA_1"}
+\includegraphics[width=80pt]{"images/collapseA_2"}
+\includegraphics[width=80pt]{"images/collapseB_1"}
+\includegraphics[width=80pt]{"images/collapseB_2"}
+\caption{legende}
+\end{figure}
+
+
+
+
+Pour mieux comprendre le phénomène, il est intéressant de regarder la distribution des images de MNIST dans son ensemble, cela est possible grâce à des algorithmes de réduction de dimension. Attention, la réduction de dimension se fait dans l'espace des pixels, et non pas dans un espace sémantique, la visualisation ne permet donc pas de séparer efficacement les différentes classes, elle permet seulement un aperçu de la distribution dans l'espace sémantique. La figure [ref figure] présente une visualisation de MNIST par transformation t-sne [ref tsne].
+
+\begin{figure}[!h]
+\centering
+\includegraphics[height=60pt]{"images/modes1"}
+\includegraphics[height=60pt]{"images/modes1_tsne"}
+\includegraphics[height=60pt]{"images/modes2"}
+\includegraphics[height=60pt]{"images/modes2_tsne"}
+\caption{legende}
+\end{figure}
+
+L'ensemble de points rouges correspond à un ensemble d'images générées par le réseau générateur lors de l'effondrement des modes. Sur les données MNIST, on observe différents groupes de points (des \textit{clusters}), ce sont les \textbf{modes} inhérents à la base de donnée MNIST : les chiffres de 1 à 9. Ce qu'il est intéressant de noter, c'est que les points générés sont rassemblés autour de un ou plusieurs pôles denses très localisés, qui ne sont pas répartis dans tout l'espace. Cela traduit l'effondrement des modes : les images générées ne couvrent qu'une petit partie de la distribution de la base de donnée d’entraînement.
+
+Il n'y a pas de solution simple, directe et universelle pour lutter contre l'effondrement des modes, mais quelques solutions ont été proposées :
+\begin{itemize}
+  \item La pénalisation de la similarité des images en sortie de générateur \textit{minibatch discrimination}. Cela consiste à ajouter un terme à la fonction de coût pour traduire la similarité (il peut s'agir de calculer une similaire pixel à pixel, ou d'estimer la similarité sémantique avec un autre réseau de neurones).
+  \item Le \textit{one-side label smoothing}. Cela consiste à changer l'objectif du discriminateur : son objectif ne sera plus de discriminer les fausses images avec une probabilité de 1, mais une probabilité plus faible, par exemple 0.9. Cela permet d'éviter la sur-confiance, et permet de laisser le générateur explorer tous l'espace des images réelles.
+  \item Certaines architectures sont plus résistantes que d'autres à l'effondrement des modes. Par exemple, les GAN de Wasserstein ne présentent ce problème.
+\end{itemize}
+
+
+\subsection{Perte de l'équilibre}
+
+Comme expliqué plus haut, l'apprentissage des GAN repose sur un équilibre fin entre le discriminateur et le générateur. Cet équilibre est parfois difficile à atteindre et est souvent instable, c'est pourquoi parfois le système s'effondre complètement. Cet effondrement vient souvent du fait que le discriminateur est devenu "trop fort" (sa fonction de perte tombe à zéro), et le générateur ne peut plus s'améliorer. Lorsque cela arrive, l’entraînement peut être arrêté : les images générées ne s'amélioreront plus. Un exemple de ce phénomène et illustré [ref figure], où l'on voit qu'à partir d'un cycle d’entraînement, la fonction de perte du discriminateur s'écroule et celle du générateur diverge.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=100pt]{"images/failure1"}
+\includegraphics[width=100pt]{"images/failure2"}
+\includegraphics[width=100pt]{"images/failure3"}
+\caption{legende}
+\end{figure}
+
+
+Il existe des solutions pour lutter contre ce problème, et cela consiste souvent à rééquilibrer les puissances ou les vitesse de convergence des différents réseaux. On peut par exemple diminuer la complexité du discriminateur, diminuer le taux d'apprentissage du discriminateur, ou mettre à jouer plus souvent le générateur que le discriminateur.
+Ajouter du bruit sur les images de la base de donnée permet aussi se renforcer la stabilité de l'apprentissage. Par ailleurs, on peut noter que les GAN de Wassertein sont plus stables que les DCGAN, mais ne sont pas totalement immunisés aux problèmes de convergence.
