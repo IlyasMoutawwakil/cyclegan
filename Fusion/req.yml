@@ -7,8 +7,8 @@ dependencies:
   - numpy
   - pandas
   - pathlib
-  - opencv
   - matplotlib
   - pip:
+    - opencv-python
     - tensorflow_addons
     - tensorflow_datasets

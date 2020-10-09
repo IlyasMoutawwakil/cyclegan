@@ -34,7 +34,7 @@ from tensorflow_addons.layers import InstanceNormalization
 # @title Data preprocessing
 
 # @param ["apple2orange", "summer2winter_yosemite", "horse2zebra", "monet2photo", "cezanne2photo", "ukiyoe2photo", "vangogh2photo", "maps", "cityscapes", "facades", "iphone2dslr_flower"] {allow-input: true}
-DATASET = "horse2zebra"
+DATASET = "vangogh2photo"
 TF_DATASET = 'cycle_gan/' + DATASET
 MAX_IMAGE_SIZE = 128  # @param {type:"integer"}
 
@@ -725,3 +725,4 @@ for i in range(START_EPOCH, END_EPOCH+1):
     losses.loc[len(losses)] = np.mean(loss, axis=0)
     # evaluate the model performance, sometimes
     summarize_performance(i, model, train_A, train_B, losses)
+

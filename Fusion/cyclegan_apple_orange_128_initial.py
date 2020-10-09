@@ -15,7 +15,6 @@ Original file is located at
 
 import os
 from pathlib import Path
-
 import cv2
 import numpy as np
 import tensorflow as tf
@@ -34,7 +33,7 @@ from tensorflow_addons.layers import InstanceNormalization
 # @title Data preprocessing
 
 # @param ["apple2orange", "summer2winter_yosemite", "horse2zebra", "monet2photo", "cezanne2photo", "ukiyoe2photo", "vangogh2photo", "maps", "cityscapes", "facades", "iphone2dslr_flower"] {allow-input: true}
-DATASET = "horse2zebra"
+DATASET = "apple2orange"
 TF_DATASET = 'cycle_gan/' + DATASET
 MAX_IMAGE_SIZE = 128  # @param {type:"integer"}
 

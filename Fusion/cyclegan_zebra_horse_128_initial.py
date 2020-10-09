@@ -725,3 +725,4 @@ for i in range(START_EPOCH, END_EPOCH+1):
     losses.loc[len(losses)] = np.mean(loss, axis=0)
     # evaluate the model performance, sometimes
     summarize_performance(i, model, train_A, train_B, losses)
+
