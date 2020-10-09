@@ -1,0 +1,14 @@
+name: tf-gpu
+channels:
+  - defaults
+dependencies:
+  - python=3.6
+  - tensorflow-gpu
+  - numpy
+  - pandas
+  - pathlib
+  - opencv
+  - matplotlib
+  - pip:
+    - tensorflow_addons
+    - tensorflow_datasets
